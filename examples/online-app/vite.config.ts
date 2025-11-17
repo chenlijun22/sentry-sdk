@@ -12,13 +12,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       // 生产环境启用 Sentry 插件上传 SourceMap
-      process.env.NODE_ENV === "production" &&
-        sentryVitePlugin({
-          authToken: env.SENTRY_AUTH_TOKEN,
-          org: env.SENTRY_ORG || "ddd-ul",
-          project: env.SENTRY_PROJECT || "sentry-sdk-project",
-          releaseName: env.SENTRY_RELEASE,
-        }),
+      sentryVitePlugin({
+        authToken: env.SENTRY_AUTH_TOKEN,
+        org: env.SENTRY_ORG || "ddd-ul",
+        project: env.SENTRY_PROJECT || "sentry-sdk-project",
+        releaseName: env.SENTRY_RELEASE,
+      }),
     ].filter(Boolean),
     build: {
       sourcemap: true, // 生成 sourcemap 用于调试

@@ -1,6 +1,6 @@
 {
-  "name": "@channelwill/sentry-sdk",
-  "version": "0.1.3",
+  "name": "channelwill-sentry-sdk",
+  "version": "0.1.8",
   "type": "module",
   "description": "基于 Sentry React SDK 的二次封装，方便快速上手",
   "main": "dist/index.js",
@@ -20,12 +20,12 @@
     "./vite": {
       "types": "./dist/vite.d.ts",
       "import": "./dist/vite.esm.js",
-      "require": "./dist/vite.js"
+      "require": "./dist/vite.cjs"
     },
     "./webpack": {
       "types": "./dist/webpack.d.ts",
       "import": "./dist/webpack.esm.js",
-      "require": "./dist/webpack.js"
+      "require": "./dist/webpack.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -33,13 +33,11 @@
     "dist",
     "README.md"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "scripts": {
     "build": "rollup -c",
     "dev": "ROLLUP_WATCH=1 rollup -c -w",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run build && npm run clean:maps",
+    "clean:maps": "find dist -name '*.map' -type f -delete || true",
     "type-check": "tsc --noEmit"
   },
   "keywords": [

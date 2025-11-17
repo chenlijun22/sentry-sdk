@@ -1,14 +1,12 @@
-# @channelwill/sentry-sdk
+# channelwill-sentry-sdk
 
-基于 Sentry React SDK 的轻量封装：默认集成了常用的Sentry插件，并提供vite和webpack二次封装的构建插件，方便在不同构建工具中上传 SourceMap 排查错误源码位置和release版本信息。
+基于 Sentry React SDK 的轻量封装：默认集成了常用的 Sentry 插件，并提供 vite 和 webpack 二次封装的构建插件，方便在不同构建工具中上传 SourceMap 排查错误源码位置和 release 版本信息。
 
 ## 安装
 
 ```bash
-npm install @channelwill/sentry-sdk
+npm install channelwill-sentry-sdk
 ```
-
-对于上传 SourceMap，可选安装 `@sentry/cli` 或在 CI 中设置 `SENTRY_AUTH_TOKEN`、`SENTRY_ORG`、`SENTRY_PROJECT` 环境变量。
 
 ## 快速开始
 
@@ -17,13 +15,13 @@ npm install @channelwill/sentry-sdk
 在应用入口文件（如 `main.tsx`）中初始化 Sentry：
 
 ```tsx
-import { initSentry } from '@channelwill/sentry-sdk';
+import { initSentry } from "channelwill-sentry-sdk";
 
 // 初始化 Sentry
 initSentry({
   // dsn从sentry文档此处获取：https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#dsn
   dsn: import.meta.env.VITE_SENTRY_DSN, // 必填：Sentry 项目 DSN，用于标识错误上报的目标项目
-  environment: import.meta.env.VITE_ENV || 'development', // 必填：当前业务环境（"test" | "development" | "production"），用于区分业务环境
+  environment: import.meta.env.VITE_ENV || "development", // 必填：当前业务环境（"test" | "development" | "production"），用于区分业务环境
   // 其他配置可参考官方文档：https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/
 });
 ```
@@ -36,10 +34,13 @@ initSentry({
 
 ```tsx
 // 直接代替：import { ErrorBoundary } from 'react-error-boundary'
-import { SentryErrorBoundary } from '@channelwill/sentry-sdk';
+import { SentryErrorBoundary } from "channelwill-sentry-sdk";
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => (
-  <div role="alert" style={{ padding: 24, background: "#fffbe7", border: "1px solid #ffe58f" }}>
+  <div
+    role="alert"
+    style={{ padding: 24, background: "#fffbe7", border: "1px solid #ffe58f" }}
+  >
     <p style={{ fontWeight: 600, color: "#faad14" }}>出现了一个错误：</p>
     <pre style={{ color: "#ff4d4f" }}>{error.message}</pre>
     <button onClick={resetErrorBoundary} style={{ marginTop: 16 }}>
@@ -52,7 +53,9 @@ export function App() {
   return (
     <SentryErrorBoundary
       fallback={ErrorFallback}
-      onReset={() => {/* 重置逻辑 */}}
+      onReset={() => {
+        /* 重置逻辑 */
+      }}
     >
       <MainRoutes />
     </SentryErrorBoundary>
@@ -67,11 +70,11 @@ export function App() {
 在用户登录后，使用 `Sentry.setUser()` 设置用户信息，这样在错误上报时可以关联到具体用户：
 
 ```tsx
-import { Sentry } from '@channelwill/sentry-sdk';
+import { Sentry } from "channelwill-sentry-sdk";
 
 // 在项目中获取用户信息后设置sentry用户
 async function getUserInfo() {
-  const {data: user} = await getUserInfoAPI()
+  const { data: user } = await getUserInfoAPI();
   Sentry.setUser({
     // id字段是内置必填，其他字段可自由拓展
     id: user.id, // 必填：用户唯一标识
@@ -95,30 +98,31 @@ function handleLogout() {
 
 上传 SourceMap 有助于排查错误代码位置，以及构建时记录的 `git commit id`作为`release` 版本标识，推荐加上这个功能
 
+> 对于上传 SourceMap，可选安装 `@sentry/cli` 命令行上传 或在 CI 中设置 `SENTRY_AUTH_TOKEN`、`SENTRY_ORG`、`SENTRY_PROJECT` 环境变量。
+
 ### Vite
 
 在 `vite.config.ts` 中配置 Sentry 插件，用于在生产构建时自动上传 SourceMap：
 
 ```ts
 // vite.config.ts
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import { sentryVitePlugin } from '@channelwill/sentry-sdk/vite';
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import { sentryVitePlugin } from "channelwill-sentry-sdk/vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
 
   return {
     plugins: [
       react(),
       // 生产环境启用 Sentry 插件上传 SourceMap
       // 从sentry文档此处获取相关配置：https://docs.sentry.io/platforms/javascript/guides/react/sourcemaps/uploading/vite/#configuration
-      process.env.NODE_ENV === 'production' &&
-        sentryVitePlugin({
-          authToken: env.SENTRY_AUTH_TOKEN,
-          org: env.SENTRY_ORG || 'your-org',
-          project: env.SENTRY_PROJECT || 'your-project',
-        }),
+      sentryVitePlugin({
+        authToken: env.SENTRY_AUTH_TOKEN,
+        org: env.SENTRY_ORG || "your-org",
+        project: env.SENTRY_PROJECT || "your-project",
+      }),
     ].filter(Boolean),
     build: {
       sourcemap: true, // 生成 sourcemap 用于调试
@@ -131,7 +135,7 @@ export default defineConfig(({ mode }) => {
 
 ```js
 // webpack.config.js
-const { sentryWebpackPlugin } = require('@channelwill/sentry-sdk/webpack');
+const { sentryWebpackPlugin } = require("channelwill-sentry-sdk/webpack");
 
 module.exports = {
   // ...其他配置
@@ -139,8 +143,8 @@ module.exports = {
     // 从sentry文档此处获取相关配置：https://docs.sentry.io/platforms/javascript/guides/react/sourcemaps/uploading/webpack/#configuration
     sentryWebpackPlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: process.env.SENTRY_ORG || 'your-org',
-      project: process.env.SENTRY_PROJECT || 'your-project',
+      org: process.env.SENTRY_ORG || "your-org",
+      project: process.env.SENTRY_PROJECT || "your-project",
     }),
   ],
 };
@@ -180,21 +184,21 @@ npm run dev
 
 ## API
 
-### 主入口 (`@channelwill/sentry-sdk`)
+### 主入口 (`channelwill-sentry-sdk`)
 
-| 导出 | 说明 |
-| --- | --- |
-| `initSentry(config: SentryConfig)` | 初始化 Sentry（对 `@sentry/react` 的薄封装）。 |
-| `SentryErrorBoundary` | 基于 `react-error-boundary` 的二次封装，可直接代替 `ErrorBoundary` 使用，完全兼容所有 Props，并自动上报错误到 Sentry。 |
-| `Sentry` | Sentry 对象，可直接使用 `Sentry.captureException()`、`Sentry.captureMessage()` 等方法。 |
+| 导出                               | 说明                                                                                                                   |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `initSentry(config: SentryConfig)` | 初始化 Sentry（对 `@sentry/react` 的薄封装）。                                                                         |
+| `SentryErrorBoundary`              | 基于 `react-error-boundary` 的二次封装，可直接代替 `ErrorBoundary` 使用，完全兼容所有 Props，并自动上报错误到 Sentry。 |
+| `Sentry`                           | Sentry 对象，可直接使用 `Sentry.captureException()`、`Sentry.captureMessage()` 等方法。                                |
 
 ### 构建插件
 
-| 导出路径 | 说明 |
-| --- | --- |
-| `@channelwill/sentry-sdk/vite` | `sentryVitePlugin(options)` - 创建 Vite SourceMap 上传插件。 |
-| `@channelwill/sentry-sdk/webpack` | `sentryWebpackPlugin(options)` - 创建 Webpack SourceMap 上传插件。 |
-| `ensureSentryCliBinary()` | 检查构建环境中是否可用 `sentry-cli`。 |
+| 导出路径                          | 说明                                                               |
+| --------------------------------- | ------------------------------------------------------------------ |
+| `channelwill-sentry-sdk/vite`    | `sentryVitePlugin(options)` - 创建 Vite SourceMap 上传插件。       |
+| `channelwill-sentry-sdk/webpack` | `sentryWebpackPlugin(options)` - 创建 Webpack SourceMap 上传插件。 |
+| `ensureSentryCliBinary()`         | 检查构建环境中是否可用 `sentry-cli`。                              |
 
 ### 类型定义
 
@@ -231,22 +235,28 @@ npm run type-check
 在开发 SDK 时，可以使用 `examples/test-app` 测试项目来调试本地更改：
 
 1. **启动 SDK 的 watch 模式**（在项目根目录）：
+
    ```bash
    npm run dev
    ```
+
    这会监听源码变化并自动重新构建。
 
 2. **在测试项目中安装本地 SDK**（在 `examples/test-app` 目录）：
+
    ```bash
    cd examples/test-app
    npm install
    ```
-   测试项目的 `package.json` 中已配置使用本地包：`"@channelwill/sentry-sdk": "file:../.."`
+
+   测试项目的 `package.json` 中已配置使用本地包：`"channelwill-sentry-sdk": "file:../.."`
 
 3. **启动测试项目**：
+
    ```bash
    npm run dev
    ```
+
    测试项目会自动使用本地构建的 SDK，修改 SDK 源码后会自动热更新。
 
 4. **调试流程**：

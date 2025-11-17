@@ -1,0 +1,14 @@
+# 排除所有 sourcemap 文件
+**/*.map
+
+# 排除源码和配置文件
+src/
+examples/
+rollup.config.js
+tsconfig.json
+*.log
+
+# 排除开发依赖
+node_modules/
+.pnpm-store/
+

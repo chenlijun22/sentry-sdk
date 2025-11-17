@@ -87,7 +87,7 @@ export default [
     input: 'src/vite.ts',
     output: [
       {
-        file: 'dist/vite.js',
+        file: 'dist/vite.cjs',
         format: 'cjs',
         sourcemap: true,
       },
@@ -114,7 +114,7 @@ export default [
     input: 'src/webpack.ts',
     output: [
       {
-        file: 'dist/webpack.js',
+        file: 'dist/webpack.cjs',
         format: 'cjs',
         sourcemap: true,
       },

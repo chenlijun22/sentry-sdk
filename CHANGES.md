@@ -4,7 +4,7 @@
 $(date '+%Y-%m-%d %H:%M:%S')
 
 ## 🎯 变更目标
-测试项目使用完整包名 `@channelwill/sentry-sdk` 而不是子路径 `/runtime`
+测试项目使用完整包名 `channelwill-sentry-sdk` 而不是子路径 `/runtime`
 
 ## ✅ 已完成的变更
 
@@ -13,28 +13,28 @@ $(date '+%Y-%m-%d %H:%M:%S')
 #### examples/test-app/src/main.tsx
 ```typescript
 // 之前
-import { initSentry, SentryProvider } from '@channelwill/sentry-sdk/runtime';
+import { initSentry, SentryProvider } from 'channelwill-sentry-sdk/runtime';
 
 // 现在
-import { initSentry, SentryProvider } from '@channelwill/sentry-sdk';
+import { initSentry, SentryProvider } from 'channelwill-sentry-sdk';
 ```
 
 #### examples/test-app/src/App.tsx
 ```typescript
 // 之前
-import { SentryErrorBoundary, useSentry } from '@channelwill/sentry-sdk/runtime';
+import { SentryErrorBoundary, useSentry } from 'channelwill-sentry-sdk/runtime';
 
 // 现在
-import { SentryErrorBoundary, useSentry } from '@channelwill/sentry-sdk';
+import { SentryErrorBoundary, useSentry } from 'channelwill-sentry-sdk';
 ```
 
 #### examples/test-app/vite.config.ts
 ```typescript
 // 之前（注释状态）
-// import { createSentryVitePlugin } from '@channelwill/sentry-sdk';
+// import { createSentryVitePlugin } from 'channelwill-sentry-sdk';
 
 // 现在（启用）
-import { createSentryVitePlugin } from '@channelwill/sentry-sdk';
+import { createSentryVitePlugin } from 'channelwill-sentry-sdk';
 
 export default defineConfig({
   plugins: [
@@ -68,7 +68,7 @@ export default defineConfig({
 
 ### 包结构
 ```
-@channelwill/sentry-sdk/
+channelwill-sentry-sdk/
 ├── dist/index.js          # 主入口（包含所有功能）
 │   ├── 运行时功能
 │   └── 构建插件
@@ -136,10 +136,10 @@ npm run build && ls -la dist/
 
 # 验证导入
 cd examples/test-app
-node -e "import('@channelwill/sentry-sdk').then(m => console.log('✅', Object.keys(m)))"
+node -e "import('channelwill-sentry-sdk').then(m => console.log('✅', Object.keys(m)))"
 
 # 验证插件
-node -e "import('@channelwill/sentry-sdk').then(m => console.log('✅ Plugin:', typeof m.createSentryVitePlugin))"
+node -e "import('channelwill-sentry-sdk').then(m => console.log('✅ Plugin:', typeof m.createSentryVitePlugin))"
 ```
 
 ## 📚 相关文档

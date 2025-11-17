@@ -1,6 +1,6 @@
 # Sentry SDK Examples
 
-这个目录包含了 `@channelwill/sentry-sdk` 的示例项目。
+这个目录包含了 `channelwill-sentry-sdk` 的示例项目。
 
 ## 示例列表
 
@@ -51,7 +51,7 @@ npm run dev
 如果你想添加新的示例项目：
 
 1. 在此目录下创建新文件夹
-2. 在 `package.json` 中添加依赖：`"@channelwill/sentry-sdk": "file:../.."`
+2. 在 `package.json` 中添加依赖：`"channelwill-sentry-sdk": "file:../.."`
 3. 添加相应的 README.md 说明文档
 4. 更新此文件，添加新示例的说明
 
