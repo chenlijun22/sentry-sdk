@@ -87,7 +87,7 @@ function App() {
           <p>点击按钮触发组件错误，ErrorBoundary 将捕获并上报到 Sentry</p>
           <SentryErrorBoundary
             key={resetKey}
-            fallback={ErrorFallback}
+            FallbackComponent={ErrorFallback}
             onReset={resetError}
             beforeCapture={(scope) => {
               scope.setTag('error-boundary', 'app-test');
