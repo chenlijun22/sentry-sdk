@@ -13,13 +13,19 @@ const SentryContext = createContext<typeof Sentry>(Sentry);
  * @param config Sentry 配置
  */
 export function initSentry(config: SentryConfig): void {
-  const { beforeSend, replayCanvas, ...options } = config;
+  const { replayCanvas, ...options } = config;
 
   // https://docs.sentry.io/platforms/javascript/configuration/options
   Sentry.init({
     environment: options.environment || process?.env?.NODE_ENV || 'development',
     integrations: [
+      // 浏览器性能分析集成
       Sentry.browserProfilingIntegration(),
+      // 浏览器会话集成
+      Sentry.browserSessionIntegration(),
+      // HTTP发生错误时上报请求头和cookie
+      Sentry.httpClientIntegration(),
+      // 浏览器追踪集成
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
         maskAllText: false,
@@ -34,29 +40,6 @@ export function initSentry(config: SentryConfig): void {
     replaysSessionSampleRate: 0.1, // Capture 10% of all sessions
     replaysOnErrorSampleRate: 1.0, // Capture 100% of error sessions
 
-    beforeSend: (event, hint) => {
-      if (beforeSend) {
-        return beforeSend(event, hint);
-      }
-      // 1. 删除敏感 request headers
-      if (event.request?.headers) {
-        delete event.request.headers["Authorization"];
-        delete event.request.headers["authorization"];
-        delete event.request.headers["Cookie"];
-        delete event.request.headers["cookie"];
-      }
-
-      // 2. 删除用户 IP
-      if (event.user) {
-        delete event.user.ip_address;
-      }
-
-      // 3. 删掉常见 form/context 数据
-      if (event.extra?.formData) delete event.extra.formData;
-      if (event.contexts?.data) delete event.contexts.data;
-
-      return event;
-    },
     ...options,
   });
 }
