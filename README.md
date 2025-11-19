@@ -19,16 +19,11 @@ import { initSentry } from "channelwill-sentry-sdk";
 
 // 初始化 Sentry
 initSentry({
-  // dsn从sentry文档此处获取：https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#dsn
   dsn: import.meta.env.VITE_SENTRY_DSN, // 必填：Sentry 项目 DSN，用于标识错误上报的目标项目
-  environment: import.meta.env.VITE_ENV || "development", // 必填：当前业务环境（"test" | "development" | "production"），用于区分业务环境
-  // 其他配置可参考官方文档：https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/
 });
 ```
 
 ### 2. 捕获 React 错误
-
-`SentryErrorBoundary` 是基于 `react-error-boundary` 的二次封装，可以直接代替 `react-error-boundary` 的 `ErrorBoundary` 使用，所有 `ErrorBoundary` 的 Props 都完全兼容。
 
 使用 `SentryErrorBoundary` 包裹需要捕获错误的组件：
 
@@ -78,8 +73,6 @@ async function getUserInfo() {
   Sentry.setUser({
     // id字段是内置必填，其他字段可自由拓展
     id: user.id, // 必填：用户唯一标识
-    email: user.email, // 可选：用户邮箱
-    username: user.username, // 可选：用户名
     // 可拓展其他字段
     age: user.age,
     nikname: user.nickname,
