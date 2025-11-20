@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:with-sentry": "vite build && node ../../dist/cli.js",
+    "upload-sourcemaps": "node ../../dist/cli.js",
     "preview": "vite preview"
   },
   "dependencies": {

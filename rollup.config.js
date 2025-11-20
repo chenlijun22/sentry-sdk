@@ -164,5 +164,28 @@ export default [
     plugins: [dts()],
     external: pluginExternals,
   },
+  // CLI 工具入口
+  {
+    input: 'src/cli.ts',
+    output: [
+      {
+        file: 'dist/cli.js',
+        format: 'esm',
+        banner: '#!/usr/bin/env node',
+        sourcemap: false,
+      },
+    ],
+    plugins: [
+      resolve({
+        browser: false,
+      }),
+      commonjs(),
+      typescript({
+        tsconfig: './tsconfig.json',
+        exclude: ['**/*.test.*', '**/*.spec.*'],
+      }),
+    ],
+    external: ['glob', '@sentry/cli', 'child_process', 'fs', 'path', 'url', 'dotenv'],
+  },
 ];
 

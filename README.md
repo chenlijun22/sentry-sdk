@@ -143,6 +143,166 @@ module.exports = {
 };
 ```
 
+### 命令行工具（CLI）- 推荐用于解决内存问题
+
+如果使用 Vite 或 Webpack 插件时遇到内存不足的问题，可以使用命令行工具来上传 SourceMap。这个工具使用 `sentry-cli` 直接上传，避免了构建过程中的内存限制。
+
+#### 安装
+
+CLI 工具已包含在包中，安装 `channelwill-sentry-sdk` 后即可使用：
+
+```bash
+npm install channelwill-sentry-sdk
+# 或
+pnpm install channelwill-sentry-sdk
+```
+
+如果需要使用 CLI 工具，还需要安装 `@sentry/cli`（可选依赖）：
+
+```bash
+npm install @sentry/cli
+# 或
+pnpm install @sentry/cli
+```
+
+#### 使用方法
+
+**方式一：使用环境变量（推荐）**
+
+在构建完成后，运行 CLI 工具。Release 名称会自动生成（与 `sentryVitePlugin` 相同的逻辑）：
+
+CLI 工具支持两种环境变量命名方式：
+- `SENTRY_*` 开头的环境变量（通用）
+- `VITE_SENTRY_*` 开头的环境变量（与 Vite 项目保持一致）
+
+```bash
+# 方式 1: 使用 SENTRY_* 环境变量
+export SENTRY_AUTH_TOKEN=your-auth-token
+export SENTRY_ORG=your-org
+export SENTRY_PROJECT=your-project
+# SENTRY_RELEASE 可选，如果不设置会自动生成
+
+# 方式 2: 使用 VITE_SENTRY_* 环境变量（与 Vite 项目保持一致）
+export VITE_SENTRY_AUTH_TOKEN=your-auth-token
+export VITE_SENTRY_ORG=your-org
+export VITE_SENTRY_PROJECT=your-project
+
+# 运行 CLI 工具（会自动使用 git commit hash 作为 release）
+npx channelwill-sentry-cli
+```
+
+**方式二：使用命令行参数**
+
+```bash
+# Release 会自动生成（从 git commit 或 CI 环境变量）
+npx channelwill-sentry-cli \
+  --auth-token your-auth-token \
+  --org your-org \
+  --project your-project
+
+# 或者手动指定 release
+npx channelwill-sentry-cli \
+  --auth-token your-auth-token \
+  --org your-org \
+  --project your-project \
+  --release your-release-name
+```
+
+**方式三：在 package.json 中添加脚本**
+
+```json
+{
+  "scripts": {
+    "build": "vite build",
+    "upload-sourcemaps": "channelwill-sentry-cli"
+  }
+}
+```
+
+然后在构建后运行：
+
+```bash
+npm run build
+npm run upload-sourcemaps
+```
+
+#### CLI 选项
+
+| 选项 | 简写 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--auth-token` | `-t` | Sentry 认证令牌 | `SENTRY_AUTH_TOKEN` 或 `VITE_SENTRY_AUTH_TOKEN` 环境变量 |
+| `--org` | `-o` | Sentry 组织名称 | `SENTRY_ORG` 或 `VITE_SENTRY_ORG` 环境变量 |
+| `--project` | `-p` | Sentry 项目名称 | `SENTRY_PROJECT` 或 `VITE_SENTRY_PROJECT` 环境变量 |
+| `--release` | `-r` | 发布版本名称（可选，会自动生成） | `SENTRY_RELEASE` 环境变量，或自动从 git/CI 生成 |
+| `--sourcemaps` | `-s` | SourceMap 文件路径/模式 | `dist/**/*.map` |
+| `--dist-path` | `-d` | 构建输出目录 | `dist` |
+| `--url-prefix` | | SourceMap URL 前缀（如 `~/`） | 无 |
+| `--url-suffix` | | SourceMap URL 后缀 | 无 |
+| `--delete-after-upload` | | 上传后删除 SourceMap 文件（默认行为） | `true` |
+| `--no-delete-after-upload` | | 上传后保留 SourceMap 文件 | - |
+| `--dry-run` | | 仅显示将要执行的操作，不实际上传 | `false` |
+| `--help` | `-h` | 显示帮助信息 | - |
+
+#### Release 自动生成
+
+CLI 工具支持自动生成 release 名称，与 `sentryVitePlugin` 使用相同的逻辑，优先级如下：
+
+1. **用户指定**：通过 `--release` 参数或 `SENTRY_RELEASE` 环境变量
+2. **CI 环境变量**：自动检测以下 CI 环境的 commit hash
+   - `VERCEL_GIT_COMMIT_SHA` (Vercel)
+   - `SOURCE_VERSION` (AWS CodeBuild)
+   - `CIRCLE_SHA1` (CircleCI)
+   - `HEROKU_SLUG_COMMIT` (Heroku)
+   - `GITHUB_SHA` (GitHub Actions)
+   - `CI_COMMIT_SHA` (GitLab CI)
+   - `BUILDKITE_COMMIT` (Buildkite)
+   - `TRAVIS_COMMIT` (Travis CI)
+3. **Git commit hash**：使用 `git rev-parse HEAD` 获取当前 commit hash
+4. **package.json version**：读取 `package.json` 中的 `version` 字段
+5. **Fallback**：使用时间戳生成 `release-{timestamp}`
+
+#### 完整示例
+
+```bash
+# 自动生成 release（推荐，与 sentryVitePlugin 行为一致）
+npx channelwill-sentry-cli \
+  --org my-org \
+  --project my-project \
+  --sourcemaps "build/**/*.map" \
+  --url-prefix "~/static/" \
+  --delete-after-upload
+
+# 手动指定 release
+npx channelwill-sentry-cli \
+  --org my-org \
+  --project my-project \
+  --release v1.0.0 \
+  --sourcemaps "build/**/*.map"
+
+# 使用环境变量 + 自动生成 release
+export SENTRY_AUTH_TOKEN=xxx
+export SENTRY_ORG=my-org
+export SENTRY_PROJECT=my-project
+
+npx channelwill-sentry-cli
+```
+
+#### 在 CI/CD 中使用
+
+```yaml
+# GitHub Actions 示例
+- name: Build
+  run: npm run build
+
+- name: Upload SourceMaps
+  env:
+    SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    SENTRY_ORG: my-org
+    SENTRY_PROJECT: my-project
+    SENTRY_RELEASE: ${{ github.sha }}
+  run: npx channelwill-sentry-cli
+```
+
 ### 环境变量配置
 
 在 `.env` 文件中配置 Sentry 相关环境变量：
@@ -153,6 +313,7 @@ VITE_SENTRY_DSN=your-sentry-dsn
 SENTRY_AUTH_TOKEN=your-auth-token
 SENTRY_ORG=your-org
 SENTRY_PROJECT=your-project
+SENTRY_RELEASE=your-release-name
 ```
 
 ## 示例项目
@@ -192,6 +353,12 @@ npm run dev
 | `channelwill-sentry-sdk/vite`    | `sentryVitePlugin(options)` - 创建 Vite SourceMap 上传插件。       |
 | `channelwill-sentry-sdk/webpack` | `sentryWebpackPlugin(options)` - 创建 Webpack SourceMap 上传插件。 |
 | `ensureSentryCliBinary()`         | 检查构建环境中是否可用 `sentry-cli`。                              |
+
+### 命令行工具
+
+| 命令 | 说明 |
+|------|------|
+| `channelwill-sentry-cli` | 命令行工具，用于上传 SourceMap 到 Sentry。推荐在遇到构建插件内存问题时使用。 |
 
 ### 类型定义
 
