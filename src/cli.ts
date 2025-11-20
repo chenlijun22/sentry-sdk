@@ -30,6 +30,8 @@ function loadEnvFiles() {
   // 按优先级从低到高排序
   const envFiles = [
     '.env',
+    '.env.dev',
+    '.env.development',
     '.env.test',
     '.env.prod',
     '.env.production',
