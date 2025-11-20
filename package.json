@@ -1,6 +1,6 @@
 {
   "name": "channelwill-sentry-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "description": "基于 Sentry React SDK 的二次封装，方便快速上手",
   "main": "dist/index.js",
