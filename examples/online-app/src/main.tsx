@@ -6,8 +6,7 @@ import "./index.css";
 
 // 初始化 Sentry
 initSentry({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.meta.env.MODE || "development",
+  dsn: (import.meta as any).env.VITE_SENTRY_DSN,
   replayCanvas: true,
 });
 

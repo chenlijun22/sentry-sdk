@@ -15,9 +15,12 @@ const SentryContext = createContext<typeof Sentry>(Sentry);
 export function initSentry(config: SentryConfig): void {
   const { replayCanvas, ...options } = config;
 
+  // 根据vite或webpack环境获取NODE_ENV
+  const buildMode = (import.meta as any)?.env?.MODE || (typeof process !== 'undefined' && process.env?.NODE_ENV) || 'development';
+
   // https://docs.sentry.io/platforms/javascript/configuration/options
   Sentry.init({
-    environment: options.environment || process?.env?.NODE_ENV || 'development',
+    environment: options.environment || buildMode || 'development',
     integrations: [
       // 浏览器性能分析集成
       Sentry.browserProfilingIntegration(),
