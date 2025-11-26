@@ -56,6 +56,89 @@ function ManualErrorButton() {
   );
 }
 
+// 敏感接口请求测试组件
+function SensitiveApiButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handleSensitiveRequest = async () => {
+    setLoading(true);
+    try {
+      // 模拟敏感接口请求，包含敏感信息
+      const sensitiveData = {
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-token',
+        password: 'secret123456',
+        apiKey: 'sk-1234567890abcdef',
+        creditCard: '4111-1111-1111-1111',
+        ssn: '123-45-6789',
+      };
+
+      // 发起请求（这个接口不存在，会失败）
+      const response = await fetch('https://api.ppp.com/api/secret/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sensitiveData.token}`,
+        },
+        body: JSON.stringify({
+          username: 'testuser',
+          password: sensitiveData.password,
+          paymentInfo: {
+            cardNumber: sensitiveData.creditCard,
+            ssn: sensitiveData.ssn,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`敏感接口请求失败: ${response.status} ${response.statusText}`);
+      }
+
+      await response.json();
+      alert('敏感接口请求成功（测试用）');
+    } catch (error: any) {
+      // 捕获错误并上报到 Sentry
+      Sentry.captureException(error, {
+        tags: {
+          component: 'SensitiveApiButton',
+          requestType: 'sensitive-api',
+        },
+        extra: {
+          timestamp: new Date().toISOString(),
+          endpoint: 'https://api.example.com/sensitive/endpoint',
+        },
+        contexts: {
+          request: {
+            url: 'https://api.example.com/sensitive/endpoint',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer [REDACTED]',
+            },
+          },
+        },
+      });
+      alert(`敏感接口请求失败，错误已上报到 Sentry: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="button-group">
+      <button
+        onClick={handleSensitiveRequest}
+        className="btn-sensitive"
+        disabled={loading}
+      >
+        {loading ? '请求中...' : '发起敏感接口请求'}
+      </button>
+      <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+        ⚠️ 此请求包含敏感信息（token、密码、信用卡号等），用于测试 Sentry 的数据脱敏功能
+      </p>
+    </div>
+  );
+}
+
 function App() {
   const [shouldThrow, setShouldThrow] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -70,7 +153,6 @@ function App() {
       id: '1234567890',
       email: 'test@example.com',
       username: 'test',
-      
     });
   }, []);
 
@@ -118,7 +200,13 @@ function App() {
         </section>
 
         <section className="section">
-          <h2>3. 调试说明</h2>
+          <h2>3. 测试敏感接口请求</h2>
+          <p>发起包含敏感信息的接口请求，测试 Sentry 的数据脱敏和错误捕获功能</p>
+          <SensitiveApiButton />
+        </section>
+
+        <section className="section">
+          <h2>4. 调试说明</h2>
           <ul className="instructions">
             <li>
               ✅ 请先在 <code>src/main.tsx</code> 中配置你的 Sentry DSN

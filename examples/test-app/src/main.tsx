@@ -8,7 +8,6 @@ import "./index.css";
 initSentry({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE || "development",
-  replayCanvas: true,
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
