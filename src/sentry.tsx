@@ -23,6 +23,19 @@ export const SentryIntegrations: Sentry.BrowserOptions['integrations'] = [
   Sentry.httpClientIntegration(),
 ]
 
+export function isDevelopmentMode() {
+  // 定义一个具名函数
+  function DevelopmentEnvironmentCheck() {}
+
+  // 检查函数的 name 属性长度。
+  // 在开发模式下，name 为 'DevelopmentEnvironmentCheck' (长度 > 1)。
+  // 在生产模式下，name 通常为 '' 或 'a' (长度 <= 1)。
+  const nameLength = DevelopmentEnvironmentCheck.name.length;
+  
+  // 如果名称长度大于 1，则认为未被压缩，即为开发模式。
+  return nameLength > 1;
+}
+
 /**
  * 初始化 Sentry
  * @param config Sentry 配置
@@ -31,7 +44,7 @@ export function initSentry(config: SentryConfig): void {
   const { replayCanvas, ignoreDev, ...options } = config;
 
   // 根据vite或webpack环境获取NODE_ENV
-  const buildMode = (import.meta as any)?.env?.MODE || (typeof process !== 'undefined' && process.env?.NODE_ENV) || 'development';
+  const buildMode = isDevelopmentMode() ? 'development' : 'production';
   console.log('buildMode', buildMode);
   const isDevelopment = buildMode === 'development';
 
