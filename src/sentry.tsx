@@ -45,7 +45,6 @@ export function initSentry(config: SentryConfig): void {
 
   // 根据vite或webpack环境获取NODE_ENV
   const buildMode = isDevelopmentMode() ? 'development' : 'production';
-  console.log('buildMode', buildMode);
   const isDevelopment = buildMode === 'development';
 
   // 如果配置了 ignoreDev 且是开发环境，则禁用 Sentry 上报
