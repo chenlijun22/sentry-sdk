@@ -93,9 +93,12 @@ export function initSentry(config: SentryConfig): void {
       // 5. 必须返回修改后的面包屑对象，或者返回 null 来完全丢弃它
       return breadcrumb
     },
+    sampleRate: 0.5,
+    tracesSampleRate: 0.5,
+    profileSessionSampleRate: 0.5,
     integrations: options.integrations || SentryIntegrations,
     replaysSessionSampleRate: 0.1, // Capture 10% of all sessions
-    replaysOnErrorSampleRate: 1.0, // Capture 100% of error sessions
+    replaysOnErrorSampleRate: 0.5, // Capture 100% of error sessions
     ...options,
   });
 }
