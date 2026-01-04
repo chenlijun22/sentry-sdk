@@ -97,8 +97,8 @@ export function initSentry(config: SentryConfig): void {
     tracesSampleRate: 0.5,
     profileSessionSampleRate: 0.5,
     integrations: options.integrations || SentryIntegrations,
-    replaysSessionSampleRate: 0.1, // Capture 10% of all sessions
-    replaysOnErrorSampleRate: 0.5, // Capture 100% of error sessions
+    replaysSessionSampleRate: 0, // 无错误的会话回放不采集
+    replaysOnErrorSampleRate: 1, // 错误上报率的基础上保证所有错误都有回放
     ...options,
   });
 }
