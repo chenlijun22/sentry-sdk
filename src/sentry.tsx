@@ -55,7 +55,7 @@ export function initSentry(config: SentryConfig): void {
   }
 
   // https://docs.sentry.io/platforms/javascript/configuration/options
-  Sentry.init({
+  const sentryOptions: Sentry.BrowserOptions = {
     enabled: shouldDisable ? false : options.enabled || true,
     environment: options.environment || buildMode || 'development',
     beforeBreadcrumb(breadcrumb, hint) {
@@ -100,7 +100,18 @@ export function initSentry(config: SentryConfig): void {
     replaysSessionSampleRate: 0, // 无错误的会话回放不采集
     replaysOnErrorSampleRate: 1, // 错误上报率的基础上保证所有错误都有回放
     ...options,
-  });
+  };
+  Sentry.init(sentryOptions);
+
+  // 上报sentry初始化的配置
+  Sentry.setExtra('sentry_init_config', sentryOptions);
+  // 上报窗口尺寸
+  if (typeof window !== 'undefined') {
+  Sentry.setExtra('window_size', {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }
 }
 
 /**
